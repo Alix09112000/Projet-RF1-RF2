@@ -1,0 +1,15 @@
+# En production, remplacer ":80" par le nom de domaine : Caddy obtient alors
+# automatiquement un certificat HTTPS (et passer COOKIE_SECURE=true).
+:80 {
+	encode gzip
+
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}
