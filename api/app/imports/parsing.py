@@ -13,7 +13,7 @@ import re
 import unicodedata
 from collections.abc import Collection, Mapping
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from difflib import get_close_matches
 from typing import Any
 
@@ -584,8 +584,8 @@ def parse_echus(
                 value = _cell(row, col)
                 if _is_empty(value):
                     continue  # mois pas encore renseigné
-                month = m if isinstance(m, date) else date(year or 0, m, 1)
-                entries.append((n, _cell(row, 1), month, _cell(row, 0), value))
+                cell_month = m if isinstance(m, date) else date(year or 0, m, 1)
+                entries.append((n, _cell(row, 1), cell_month, _cell(row, 0), value))
     else:
         _check_headers(result, header, ECHUS_HEADERS)
         return result.finish()
