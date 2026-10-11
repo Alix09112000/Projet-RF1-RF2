@@ -42,7 +42,7 @@ h2 { font-size: 17px; }
 
 /* Coquille */
 .shell { display: grid; grid-template-columns: 246px minmax(0, 1fr); min-height: 100vh; }
-.side { background: var(--ink); color: #fff; padding: 26px 18px; display: flex; flex-direction: column; gap: 22px; position: sticky; top: 0; height: 100vh; }
+.side { background: var(--ink); color: #fff; padding: 26px 18px; display: flex; flex-direction: column; gap: 22px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
 .nav { display: flex; flex-direction: column; gap: 4px; }
 .nav-item { display: block; padding: 11px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--muted-dark); text-decoration: none; }
 .nav-item:hover { color: #fff; background: rgba(255, 255, 255, 0.07); }
@@ -111,3 +111,34 @@ h2 { font-size: 17px; }
   .login-title { font-size: 36px; }
   .login-right { padding: 28px 16px 40px; }
 }
+
+/* Import */
+.lead { margin: -4px 0 22px; max-width: 62em; line-height: 1.55; }
+.section { margin-top: 22px; }
+.upload { display: flex; flex-direction: column; gap: 12px; }
+.upload p { margin: 0; }
+.upload-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.upload-head h2 { margin: 0; }
+.link { font-size: 12.5px; font-weight: 600; }
+.field input[type='file'] { padding: 9px 10px; background: #fff; }
+.report { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+.report-err { border-color: #f3c2cb; background: #fff8f9; }
+.report-title { font-weight: 700; font-size: 14px; }
+.issues-title { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+.issues-err .issues-title { color: #c8102e; }
+.issues-warn .issues-title { color: #8a6d00; }
+.issues ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.55; max-height: 220px; overflow-y: auto; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-ghost {
+  font: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 12px 20px; cursor: pointer;
+}
+.btn-ghost:hover { border-color: var(--magenta); color: var(--magenta); }
+.btn-ghost:disabled { opacity: 0.55; cursor: not-allowed; }
+.table-wrap { overflow-x: auto; }
+.hint-sm { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.tag-accepted { background: #e1f7ef; color: #00805c; }
+.tag-rejected { background: #fff1f3; color: #c8102e; }
+.tag-pending { background: #fff6d6; color: #8a6d00; }
+.tag-cancelled { background: #f1f0f2; color: var(--muted); }

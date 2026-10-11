@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import type { Role } from './api/client'
+import Import from './pages/Import'
 import Placeholder from './pages/Placeholder'
 import Users from './pages/Users'
 
@@ -41,13 +42,7 @@ export const NAV: NavItem[] = [
     path: 'import',
     label: 'Import des données',
     roles: ['controller', 'admin'],
-    element: (
-      <Placeholder
-        title="Import des données"
-        sprint="Sprint 1"
-        text="Dépôt des fichiers Réalisés commerciaux et Échus, avec contrôles ligne par ligne avant acceptation."
-      />
-    ),
+    element: <Import />,
   },
   {
     path: 'parametres',

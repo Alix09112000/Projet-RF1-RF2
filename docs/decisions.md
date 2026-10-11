@@ -31,3 +31,21 @@ Chaque bloc de formules Excel est réécrit puis comparé aux valeurs d'un RF r�
 ## D7 — Commentaires par règles derrière une interface (2026-10)
 Le moteur de commentaires expose une interface unique. La première implémentation est par
 règles ; une implémentation IA pourra la remplacer sans toucher au reste.
+
+## D8 — Import en deux temps (2026-10)
+Un dépôt est d'abord vérifié (`/imports/{type}/preview`) : rien n'entre dans les réalisés.
+Il n'est enregistré qu'après confirmation explicite, avec acquittement des avertissements s'il y en a.
+Un fichier refusé n'est jamais enregistré, mais son dépôt reste dans l'historique.
+
+## D9 — Fichier d'origine archivé en base (2026-10)
+Chaque fichier déposé est conservé tel quel (`import_batches.content`, avec son empreinte SHA-256),
+téléchargeable depuis l'historique. Volume attendu : quelques centaines de Ko par mois.
+
+## D10 — Réalisés en format long (2026-10)
+`actual_values` : une ligne par source × ville × mois × indicateur (× ancienneté pour les échus).
+Un mois réimporté remplace entièrement le précédent. Ajouter une colonne au fichier ne demande
+pas de migration.
+
+## D11 — Reprise de l'historique par le même import (2026-10)
+L'historique (octobre 2017 à juin 2025) se charge en déposant une fois l'onglet actuel :
+les lignes hors Côte d'Ivoire sont ignorées, les colonnes de cumul aussi. Pas de script dédié.

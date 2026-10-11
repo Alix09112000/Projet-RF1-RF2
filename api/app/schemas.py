@@ -1,6 +1,8 @@
+from datetime import date, datetime
+
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models import Role, VersionStatus
+from app.models import ImportKind, ImportStatus, Role, VersionStatus
 
 
 class LoginIn(BaseModel):
@@ -54,3 +56,36 @@ class ReferenceOut(BaseModel):
     cities: list[CityOut]
     segments: list[SegmentOut]
     versions: list[VersionOut]
+
+
+class IssueOut(BaseModel):
+    message: str
+    line: int | None = None
+    column: str | None = None
+
+
+class BatchOut(BaseModel):
+    id: int
+    kind: ImportKind
+    status: ImportStatus
+    filename: str
+    uploaded_at: datetime
+    uploaded_by: str
+    rows_read: int
+    rows_kept: int
+    rows_ignored: int
+    months: list[str]
+    errors: list[IssueOut]
+    warnings: list[IssueOut]
+    warnings_confirmed: bool
+    decided_at: datetime | None
+
+
+class ConfirmIn(BaseModel):
+    confirm_warnings: bool = False
+
+
+class SourceStatus(BaseModel):
+    last_import_at: datetime | None
+    last_import_by: str | None
+    last_month: date | None
