@@ -29,10 +29,11 @@ function errorMessage(body: unknown, fallback: string): string {
 }
 
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const isForm = init.body instanceof FormData
   const response = await fetch(`/api${path}`, {
     credentials: 'include',
     ...init,
-    headers: { 'Content-Type': 'application/json', ...(init.headers ?? {}) },
+    headers: isForm ? init.headers : { 'Content-Type': 'application/json', ...(init.headers ?? {}) },
   })
   if (!response.ok) {
     let body: unknown = null

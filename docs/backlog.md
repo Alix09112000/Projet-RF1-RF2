@@ -2,7 +2,7 @@
 
 Format : une issue par ligne, titre en gras, critères d'acceptation en dessous.
 
-## Sprint 1 — Import des données
+## Sprint 1 — Import des données (livré, à valider sur fichiers réels)
 
 - **Déposer le fichier Réalisés commerciaux**
   - Un utilisateur `controller` dépose un .xlsx ou .csv de la forme « Source BR PBI » (colonnes A à AH).
