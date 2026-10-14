@@ -212,7 +212,7 @@ function UploadCard({ kind, title, text }: { kind: Kind; title: string; text: st
         {kind === 'echus' && (
           <label className="field">
             <span>Année des données (seulement pour le format croisé)</span>
-            <input inputMode="numeric" value={year} onChange={(e) => setYear(e.target.value)} placeholder="2026" />
+            <input inputMode="numeric" value={year} onChange={(e) => setYear(e.target.value)} placeholder="Laisser vide si le fichier a une colonne Mois" />
           </label>
         )}
         <button className="btn-primary" disabled={!file || check.isPending}>

@@ -1,7 +1,9 @@
 import type { ReactElement } from 'react'
 import type { Role } from './api/client'
 import Import from './pages/Import'
+import Parametres from './pages/Parametres'
 import Placeholder from './pages/Placeholder'
+import Saisie from './pages/Saisie'
 import Users from './pages/Users'
 
 export interface NavItem {
@@ -17,14 +19,8 @@ export const NAV: NavItem[] = [
   {
     path: 'saisie',
     label: 'Saisie des hypothèses',
-    roles: ['contributor', 'controller', 'admin'],
-    element: (
-      <Placeholder
-        title="Saisie des hypothèses"
-        sprint="Sprint 2"
-        text="Saisie par segment et par direction, contrôles de plage, justification et historique de chaque valeur."
-      />
-    ),
+    roles: ALL,
+    element: <Saisie />,
   },
   {
     path: 'tableau-de-bord',
@@ -47,14 +43,8 @@ export const NAV: NavItem[] = [
   {
     path: 'parametres',
     label: 'Paramètres',
-    roles: ['controller', 'admin'],
-    element: (
-      <Placeholder
-        title="Paramètres du modèle"
-        sprint="Sprint 2"
-        text="Taux de change, barèmes et seuil d'écart significatif, appliqués à tout le modèle."
-      />
-    ),
+    roles: ALL,
+    element: <Parametres />,
   },
   {
     path: 'historique',
@@ -63,7 +53,7 @@ export const NAV: NavItem[] = [
     element: (
       <Placeholder
         title="Historique"
-        sprint="Sprint 2"
+        sprint="Sprint 3"
         text="Toutes les saisies, changements de paramètres, dépôts de fichiers et validations."
       />
     ),

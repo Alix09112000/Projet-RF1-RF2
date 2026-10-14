@@ -85,8 +85,8 @@ Les mêmes contrôles tournent sur chaque pull request (`.github/workflows/ci.ym
 | Sprint | Contenu | État |
 | --- | --- | --- |
 | S0 | Socle, comptes et rôles | terminé (v0.1) |
-| S1 | Import des fichiers Réalisés commerciaux et Échus | **en cours** |
-| S2 | Saisie des hypothèses, paramètres, historique | à faire |
+| S1 | Import des fichiers Réalisés commerciaux et Échus | terminé (v0.2) |
+| S2 | Saisie DRCOM (B2C1, SME1), paramètres de la ville, historique | **en cours** |
 | S3 | Moteur de calcul B2C | à faire |
 | S4 | Moteur SME, DROPE, P&L pays | à faire |
 | S5 | Tableau de bord, commentaires, export | à faire |

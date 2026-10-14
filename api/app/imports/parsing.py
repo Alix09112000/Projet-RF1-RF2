@@ -611,8 +611,8 @@ def parse_echus(
                 "Ville",
             )
             continue
-        month = parse_month(month_raw)
-        if month is None:
+        entry_month = parse_month(month_raw)
+        if entry_month is None:
             result.error(
                 f'Ligne {n} : mois "{_raw(month_raw)}" non reconnu, attendu 01/07/2026.', n, "Mois"
             )
@@ -631,10 +631,10 @@ def parse_echus(
         except ValueError as exc:
             result.error(_number_message(n, "Nb_echus", value_raw, exc), n, "Nb_echus")
             continue
-        key = (month, seniority)
+        key = (entry_month, seniority)
         if key in seen:
             result.error(
-                f"{CITY} / {fmt_date(month)} / ancienneté {seniority} apparaît deux fois "
+                f"{CITY} / {fmt_date(entry_month)} / ancienneté {seniority} apparaît deux fois "
                 f"(lignes {seen[key]} et {n}).",
                 n,
                 "Mois",
