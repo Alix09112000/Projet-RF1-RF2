@@ -31,3 +31,38 @@ Chaque bloc de formules Excel est réécrit puis comparé aux valeurs d'un RF r�
 ## D7 — Commentaires par règles derrière une interface (2026-10)
 Le moteur de commentaires expose une interface unique. La première implémentation est par
 règles ; une implémentation IA pourra la remplacer sans toucher au reste.
+
+## D8 — Import en deux temps (2026-10)
+Un dépôt est d'abord vérifié (`/imports/{type}/preview`) : rien n'entre dans les réalisés.
+Il n'est enregistré qu'après confirmation explicite, avec acquittement des avertissements s'il y en a.
+Un fichier refusé n'est jamais enregistré, mais son dépôt reste dans l'historique.
+
+## D9 — Fichier d'origine archivé en base (2026-10)
+Chaque fichier déposé est conservé tel quel (`import_batches.content`, avec son empreinte SHA-256),
+téléchargeable depuis l'historique. Volume attendu : quelques centaines de Ko par mois.
+
+## D10 — Réalisés en format long (2026-10)
+`actual_values` : une ligne par source × ville × mois × indicateur (× ancienneté pour les échus).
+Un mois réimporté remplace entièrement le précédent. Ajouter une colonne au fichier ne demande
+pas de migration.
+
+## D11 — Reprise de l'historique par le même import (2026-10)
+L'historique (octobre 2017 à juin 2025) se charge en déposant une fois l'onglet actuel :
+les lignes hors Côte d'Ivoire sont ignorées, les colonnes de cumul aussi. Pas de script dédié.
+
+## D12 — Axe du temps sans année (2026-10)
+Les 24 colonnes I à AF deviennent des « slots » 0 à 23 : 6 mois réels, 6 mois RF2, 12 mois BI.
+Le modèle de calcul est le même chaque année ; l'année n'est jamais stockée avec une hypothèse.
+
+## D13 — Catalogue de saisie issu des fiches (2026-10)
+Les cellules saisissables (beiges) de B2C1 et SME1 sont listées dans `app/inputs/catalog.py`,
+copie de la feuille « Lignes à saisir » de chaque fiche (70 lignes / 1 334 cellules B2C1,
+63 lignes / 1 260 cellules SME1). Un test vérifie ces totaux. Toute autre cellule est refusée.
+
+## D14 — Historique cellule par cellule (2026-10)
+Chaque modification crée une ligne `assumption_changes` (avant, après, auteur, date, justification).
+Une valeur inchangée ne crée pas d'historique. Effacer une cellule est une modification.
+
+## D15 — Pas de contrôle de plage sans règle écrite (2026-10)
+Les fiches ne donnent aucune plage autorisée : seule la nature numérique est contrôlée.
+Les soldes « 1 − parts » négatifs sont signalés, sans bloquer. Voir `docs/sprint-2-questions.md`.

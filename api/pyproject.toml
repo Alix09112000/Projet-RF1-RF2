@@ -1,6 +1,6 @@
 [project]
 name = "rf-api"
-version = "0.1.0"
+version = "0.3.0"
 description = "API de l'outil budget RF1/RF2 — Canalbox Côte d'Ivoire"
 requires-python = ">=3.12"
 dependencies = [
@@ -15,6 +15,7 @@ dependencies = [
     "pyjwt>=2.8",
     "pandas>=2.2",
     "openpyxl>=3.1",
+    "python-multipart>=0.0.9",
 ]
 
 [project.optional-dependencies]

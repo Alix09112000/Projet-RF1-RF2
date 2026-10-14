@@ -9,7 +9,16 @@ from sqlalchemy import select
 
 from app.auth.security import hash_password
 from app.db import SessionLocal
-from app.models import City, ForecastVersion, Role, Segment, User, VersionStatus
+from app.models import (
+    City,
+    CityParameter,
+    ForecastVersion,
+    ListEntry,
+    Role,
+    Segment,
+    User,
+    VersionStatus,
+)
 
 CITIES = [("ABJ", "Abidjan", "Côte d'Ivoire", "XOF")]
 SEGMENTS = [("B2C", "Particuliers"), ("SME", "Entreprises"), ("DROPE", "DROPE")]
@@ -18,6 +27,25 @@ VERSIONS = [
     ("RF1", "Reforecast 1 — 2026", VersionStatus.published),
     ("RF2", "Reforecast 2 — 2026", VersionStatus.draft),
 ]
+
+# Table List du modèle (lignes 2 à 15) : entité légale / pays / ville.
+LIST_ENTRIES = [
+    (2, "GVA SAS", "France", "Paris"),
+    (3, "GVA Gabon", "Gabon", "Libreville"),
+    (4, "GVA Togo", "Togo", "Lomé"),
+    (5, "GVA Congo", "Congo", "Pointe-Noire"),
+    (6, "GVA CIV", "CIV", "Abidjan"),
+    (7, "GVA Rwanda", "Rwanda", "Kigali"),
+    (8, "GVA Congo", "Congo", "Brazzaville"),
+    (9, "GVA BF", "BF", "Ouagadougou"),
+    (10, "GVA RDC", "RDC", "Kinshasa"),
+    (11, "GVA Rwanda", "Rwanda", "Rubavu"),
+    (12, "GVA RDC", "RDC", "Goma"),
+    (13, "GVA Gabon", "Gabon", "Port-Gentil"),
+    (14, "GVA BF", "BF", "Bobo Dioulasso"),
+    (15, "GVA Uganda", "Uganda", "Kampala"),
+]
+DEFAULT_PARAMETERS = {"legal_entity": "GVA CIV", "city": "Abidjan"}
 
 
 def run() -> None:
@@ -33,6 +61,17 @@ def run() -> None:
         for code, label, status in VERSIONS:
             if db.scalar(select(ForecastVersion).where(ForecastVersion.code == code)) is None:
                 db.add(ForecastVersion(code=code, label=label, status=status))
+
+        for row, entity, country, city in LIST_ENTRIES:
+            exists = db.scalar(
+                select(ListEntry).where(ListEntry.entity == entity, ListEntry.city == city)
+            )
+            if exists is None:
+                db.add(ListEntry(entity=entity, country=country, city=city, source_row=row))
+
+        for key, value in DEFAULT_PARAMETERS.items():
+            if db.scalar(select(CityParameter).where(CityParameter.key == key)) is None:
+                db.add(CityParameter(key=key, value=value))
 
         has_admin = db.scalar(select(User).where(User.role == Role.admin)) is not None
         email = os.environ.get("ADMIN_EMAIL", "").strip().lower()

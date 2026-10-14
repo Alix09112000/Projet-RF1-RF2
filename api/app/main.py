@@ -2,11 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import auth, health, reference, users
+from app.routers import auth, health, imports, inputs, parameters, reference, users
 
 app = FastAPI(
     title="Outil budget RF1/RF2 — Canalbox Côte d'Ivoire",
-    version="0.1.0",
+    version="0.3.0",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
@@ -19,5 +19,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for module in (health, auth, users, reference):
+for module in (health, auth, users, reference, imports, inputs, parameters):
     app.include_router(module.router, prefix="/api")
