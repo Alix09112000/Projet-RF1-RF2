@@ -66,3 +66,10 @@ Une valeur inchangée ne crée pas d'historique. Effacer une cellule est une mod
 ## D15 — Pas de contrôle de plage sans règle écrite (2026-10)
 Les fiches ne donnent aucune plage autorisée : seule la nature numérique est contrôlée.
 Les soldes « 1 − parts » négatifs sont signalés, sans bloquer. Voir `docs/sprint-2-questions.md`.
+
+## D16 — Moteur B2C1 : option B (2026-10)
+Les équations viennent du document « Moteur B2C_1 en blocs de codage ». Les colonnes Source BR PBI
+sont celles des fichiers réels (38 colonnes A–AL), reliées par libellé. Le Moteur cite un extrait à
+43 colonnes (jusqu'à AQ) : les colonnes absentes du fichier réel (offres Bundle) valent 0.
+Les sorties du moteur sont des clés textuelles (`gross_adds.PREMIUM`, …), pas des numéros de ligne.
+Les cumuls AI–AL sont recalculés depuis l'historique importé.

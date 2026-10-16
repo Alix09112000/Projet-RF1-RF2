@@ -46,7 +46,7 @@ def save_parameters(body: ParametersIn, user: Controller, db: DB) -> dict:
     )
     if pair is None:
         raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
             "Ce couple entité légale / ville n'existe pas dans la table List",
         )
     now = datetime.now(UTC)

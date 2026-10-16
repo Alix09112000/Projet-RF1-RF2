@@ -1,22 +1,26 @@
 # Sprint 2 — questions ouvertes et anomalies
 
-Sources lues (dossier Drive « 02 - Fichiers Canalbox ») : `Fiche_onglet_B2C1`, `Fiche_onglet_SME1`.
-Les autres fiches seront lues au moment du sprint qui les concerne.
+Sources lues : `Fiche_onglet_B2C1`, `Fiche_onglet_SME1`, `Fiche_import_Source_BR_PBI_et_Source_echus`.
 
-## Fichiers introuvables dans le dossier Drive
+## Import (Sprint 1) — vérifié avec « Fiche_import_Source_BR_PBI_et_Source_echus »
 
-Je ne les ai pas trouvés, ni par leur nom ni par une recherche :
+J'ai vérifié la structure des vrais fichiers (en-têtes, types, nombre de lignes) sans copier aucune donnée.
 
-- `Fiche_import_Source_BR_PBI_et_Source_echus` : je n'ai donc pas pu vérifier l'import du Sprint 1 par rapport à cette fiche.
-- `Cartographie_Country_PL`
-- `Moteur_B2C_1_blocs_de_codage` (nécessaire pour coder le moteur B2C1)
-- Une fiche pour l'onglet `List`. Les 14 entités de List viennent de notre inventaire (`Inventaire_saisies_manuelles_Abidjan.csv`, lignes 2 à 15).
+| Contrôle demandé par la fiche | Dans l'outil |
+|---|---|
+| En-têtes A à AH exacts | Conforme. Les 34 libellés sont identiques au vrai fichier. La lecture se fait par nom de colonne, pas par lettre : une colonne déplacée ne fausse donc rien. |
+| AI à AL recalculés | Les colonnes sont ignorées avec un avertissement. Dans le vrai fichier, ce sont bien des formules. Le recalcul se fera avec le moteur B2C1. |
+| Mois du 1er, sans trou | Un mois manquant produit un **avertissement**, pas un blocage. **Écart, à confirmer : faut-il bloquer ?** |
+| Une seule ligne par (ville, mois) | Conforme : un doublon bloque le dépôt. |
+| Dernier mois = dernier mois réel annoncé | **Pas encore fait.** Il faut le paramètre « dernier mois réel » du cycle, qui viendra avec le moteur. |
+| Valeurs numériques positives | Un texte bloque le dépôt. Une valeur négative produit désormais un **avertissement** (ajouté). |
+| Échus : ancienneté ≥ 1, ville connue | **Corrigé.** L'ancienneté était plafonnée à 40, alors que le vrai fichier va jusqu'à 63 pour ABJ : il aurait été refusé. Il n'y a plus de plafond. Au-delà de 120 mois, l'outil affiche un avertissement. |
+| Échus : mois de référence explicite | L'année est demandée au dépôt du format croisé. Chaque valeur est stockée avec une date complète (mois + année). Le choix du mois lu par B2C1 (C = janvier, H = juin) viendra du « dernier mois réel » du cycle. |
+| Historique et recalcul sur un ancien import | Chaque dépôt est conservé (date, fichier, utilisateur). Le recalcul viendra avec le moteur. |
 
-## Import (Sprint 1) — ce que l'on peut vérifier sans la fiche import
+**Structure réelle de « Source échus » :** le fichier a 2 lignes d'en-tête. La première porte les mois, la seconde « Ancienneté (Mois) / Villes / ECHUS ». La seconde est maintenant reconnue et ignorée. 5 tests reproduisent cette structure avec des valeurs fictives.
 
-- Les **34 colonnes A à AH** sont contrôlées à l'identique : c'est conforme.
-- Les **cumuls AI à AL** sont ignorés avec un avertissement. La feuille « Colonnes sources » de B2C1 montre que les lignes 34 à 36 et 291 lisent AI, AJ, AK et AL. Le moteur B2C1 devra donc les recalculer à partir des ventes D, E et F. Ce calcul n'est pas encore codé, il est prévu avec le moteur.
-- **Mois de référence des échus** : le format long exige une date complète dans `Mois`. Le format croisé, lui, demande seulement l'année au moment du dépôt. Si la fiche import exige un mois de référence explicite (et pas seulement l'année), il faudra ajouter un champ « mois de référence » au dépôt. À confirmer en lisant la fiche.
+**Anomalie dans les données échus :** ABJ a une ligne d'ancienneté **663 mois**, soit 55 ans, isolée après 63. Est-ce une erreur d'export, ou une ligne « reliquat » à garder ?
 
 ## Anomalies relevées dans les fiches
 
@@ -50,3 +54,7 @@ Les questions reprises des fiches figurent en premier.
 | Q10 | La saisie de B2C1 et SME1 est-elle bien réservée à la DRCOM ? Et DRB2B, que le fichier dit « incluse dans DRCOM », doit-elle aussi pouvoir saisir ? | Fiche SME1 (Qui remplit) | Droits |
 | Q11 | Pour les mois réels, les lignes I à N (congés, effectifs, ajustement du parc) se saisissent-elles à chaque cycle ou une seule fois ? | Sprint 2 | Non |
 | Q12 | La table List contient-elle d'autres listes de choix que entité / pays / ville ? Il faut la fiche List. | Sprint 2 | Paramètres |
+| Q13 | Faut-il bloquer un dépôt Réalisés qui a un mois manquant (aujourd'hui, simple avertissement) ? | Fiche import | Non |
+| Q14 | Ancienneté 663 dans les échus ABJ : erreur d'export ou ligne à garder ? | Fichier réel | Non |
+| Q15 | L'extrait Power BI est-il complet (tout l'historique) ou seulement les nouveaux mois ? Aujourd'hui, l'outil remplace les mois déposés et garde les autres. | Fiche import, Q2 | Non |
+| Q16 | Qui charge les deux fichiers : la DRCOM ou la direction financière ? Aujourd'hui, ce sont le contrôle de gestion et l'administrateur. | Fiche import, Q5 | Droits |

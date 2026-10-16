@@ -2,7 +2,9 @@
 
 CITY = "ABJ"
 COUNTRY_KEY = "cote d ivoire"  # « Cote d Ivoire » normalisé (accents et apostrophes retirés)
-MAX_SENIORITY = 40
+# Fiche import : ancienneté entière ≥ 1, sans maximum. Au-delà de ce seuil, avertissement
+# (l'historique ABJ commence en octobre 2017 : une ancienneté plus longue est à vérifier).
+SENIORITY_WARN = 120
 VARIATION_THRESHOLD = 0.30
 
 # Fichier 1 — Réalisés commerciaux : colonnes A à AH de l'onglet « Source BR PBI ».

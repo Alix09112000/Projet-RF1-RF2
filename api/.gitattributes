@@ -1,0 +1,10 @@
+# Fins de ligne Unix (LF) pour tout le texte, quel que soit le poste.
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+*.png binary
+*.jpg binary
+*.xlsx binary
