@@ -160,7 +160,7 @@ def test_echus_format_long() -> None:
     assert result.months == [date(2025, 1, 1), date(2025, 2, 1)]
 
 
-@pytest.mark.parametrize("seniority", [0, 41, "a", 1.5])
+@pytest.mark.parametrize("seniority", [0, -2, "a", 1.5])
 def test_echus_anciennete_invalide(seniority: object) -> None:
     result = parse_echus([ECHUS_HEADERS, ["ABJ", "01/01/2025", seniority, 10]])
     assert "ancienneté" in messages(result.errors)
@@ -266,3 +266,39 @@ def test_xlsx_plusieurs_feuilles_refuse() -> None:
 def test_format_inconnu() -> None:
     with pytest.raises(FileFormatError, match="Format non reconnu"):
         read_table(b"%PDF", "echus.pdf")
+
+
+# Structure réelle de « Source échus » (fiche import) : 2 lignes d'en-tête, anciennetés jusqu'à 63
+# et une valeur isolée très élevée. Valeurs fictives.
+REAL_LAYOUT = [
+    ["DATE_MONTH - Mois", None, "janvier", "février", "mars"],
+    ["Ancienneté (Mois)", "Villes", "ECHUS", "ECHUS", "ECHUS"],
+    [1, "Total", 900, 950, 980],
+    [1, "ABJ", 100, 110, 120],
+    [63, "ABJ", 2, 3, None],
+    [663, "ABJ", 1, 1, 1],
+    [1, "LBV", 50, 55, 60],
+]
+
+
+def test_echus_structure_reelle() -> None:
+    result = parse_echus(REAL_LAYOUT, year=2025)
+    assert result.ok, messages(result.errors)
+    assert "Deuxième ligne d'en-tête détectée et ignorée" in messages(result.warnings)
+    assert "ancienneté 663 mois, inhabituelle" in messages(result.warnings)
+    values = {(r.month.month, r.seniority): r.value for r in result.records}
+    assert values[(1, 63)] == 2 and (3, 63) not in values
+    assert values[(3, 663)] == 1
+    assert result.rows_kept == 3
+
+
+def test_echus_negatif_signale() -> None:
+    result = parse_echus([ECHUS_HEADERS, ["ABJ", "01/01/2025", 1, -4]])
+    assert result.ok
+    assert "nombre d'échus négatif" in messages(result.warnings)
+
+
+def test_commercial_negatif_signale() -> None:
+    result = parse_commercial([H, commercial_row({"NB_DEMENAGEMENT": -3})])
+    assert result.ok, messages(result.errors)
+    assert "NB_DEMENAGEMENT : valeur négative" in messages(result.warnings)

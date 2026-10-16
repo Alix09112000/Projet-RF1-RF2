@@ -1,0 +1,26 @@
+# Environnement
+.env
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+
+# Données : ne jamais versionner de fichiers Canalbox réels
+data/
+*.xlsx
+!api/tests/fixtures/*.xlsx
+
+# Éditeurs
+.vscode/
+.idea/
+.DS_Store

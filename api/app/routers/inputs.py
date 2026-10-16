@@ -129,7 +129,7 @@ def save_module(
                 f"saisie à partir de la colonne {line.first_column}."
             )
     if errors:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, errors)
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, errors)
 
     existing = {
         (c.row, c.slot): c

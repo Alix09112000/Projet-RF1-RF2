@@ -26,7 +26,7 @@ from app.imports.spec import (
     COUNTRY_KEY,
     ECHUS_HEADERS,
     ECHUS_SERIES,
-    MAX_SENIORITY,
+    SENIORITY_WARN,
     TOTAL_CHECKS,
     VARIATION_METRICS,
     VARIATION_THRESHOLD,
@@ -268,7 +268,7 @@ def _parse_seniority(value: Any) -> int | None:
         n = int(value.strip())
     else:
         return None
-    return n if 1 <= n <= MAX_SENIORITY else None
+    return n if n >= 1 else None
 
 
 def _norm(value: Any) -> str:
@@ -478,6 +478,13 @@ def parse_commercial(
                 values[metric] = parse_number(raw)
             except ValueError as exc:
                 result.error(_number_message(n, metric, raw, exc), n, metric)
+                continue
+            if values[metric] < 0:
+                result.warn(
+                    f"Ligne {n}, colonne {metric} : valeur négative ({fmt_num(values[metric])}).",
+                    n,
+                    metric,
+                )
         if len(values) == len(COMMERCIAL_METRICS):
             data[month] = values
             result.rows_kept += 1
@@ -580,6 +587,9 @@ def parse_echus(
         for n, row in enumerate(rows[1:], start=2):
             if _is_empty_row(row):
                 continue
+            if _norm(_cell(row, 1)) == "villes":
+                result.warn("Deuxième ligne d'en-tête détectée et ignorée.", n)
+                continue
             for col, m in columns:
                 value = _cell(row, col)
                 if _is_empty(value):
@@ -621,7 +631,7 @@ def parse_echus(
         if seniority is None:
             result.error(
                 f'Ligne {n} : ancienneté "{_raw(seniority_raw)}" invalide, '
-                f"attendu un entier de 1 à {MAX_SENIORITY}.",
+                "attendu un entier supérieur ou égal à 1.",
                 n,
                 "Anciennete_mois",
             )
@@ -631,6 +641,14 @@ def parse_echus(
         except ValueError as exc:
             result.error(_number_message(n, "Nb_echus", value_raw, exc), n, "Nb_echus")
             continue
+        if seniority > SENIORITY_WARN:
+            result.warn(
+                f"Ligne {n} : ancienneté {seniority} mois, inhabituelle. À confirmer.",
+                n,
+                "Anciennete_mois",
+            )
+        if value < 0:
+            result.warn(f"Ligne {n} : nombre d'échus négatif ({fmt_num(value)}).", n, "Nb_echus")
         key = (entry_month, seniority)
         if key in seen:
             result.error(
