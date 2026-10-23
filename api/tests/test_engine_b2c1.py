@@ -71,7 +71,7 @@ def test_productivite() -> None:
     days = res.get("calendar.working_days", 6)
     per_day = res.get("productivity.Internal VAD D2D.per_seller_day", 6)
     assert per_day == pytest.approx(40 / 4 / days)
-    assert res.get("productivity.Internal VAD D2D.per_supervisor", 6) == 20
+    assert res.get("productivity.Internal VAD D2D.per_supervisor", 6) == pytest.approx(20 / days)
 
 
 def test_mix_depasse_100() -> None:

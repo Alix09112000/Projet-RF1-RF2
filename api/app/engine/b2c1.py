@@ -138,7 +138,9 @@ def block_b2(res: Result, grid: Grid, slot: int) -> None:
         res.put(f"productivity.{name}.per_seller_day", slot, _div(_div(sales, staff), days))
         if supervisor_row is not None:
             supervisors = _input(grid, supervisor_row, slot)
-            res.put(f"productivity.{name}.per_supervisor", slot, _div(sales, supervisors))
+            res.put(
+                f"productivity.{name}.per_supervisor", slot, _div(_div(sales, supervisors), days)
+            )
 
 
 # Boucle -----------------------------------------------------------------------------------------
