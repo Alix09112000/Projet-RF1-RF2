@@ -119,6 +119,7 @@ def save_module(
         )
 
     errors = []
+    mix_rows = {part for balance in module.balances for part in balance.parts}
     for cell in body.cells:
         line = module.line(cell.row)
         if line is None:
@@ -127,6 +128,11 @@ def save_module(
             errors.append(
                 f"Ligne {cell.row} ({line.label}) : mois {cell.slot + 1} non saisissable, "
                 f"saisie à partir de la colonne {line.first_column}."
+            )
+        elif cell.row in mix_rows and cell.value is not None and not 0 <= cell.value <= 1:
+            errors.append(
+                f"Ligne {cell.row} ({line.label}) : {cell.value * 100:g} % "
+                f"au mois {cell.slot + 1}. Un mix doit être compris entre 0 % et 100 %."
             )
     if errors:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, errors)

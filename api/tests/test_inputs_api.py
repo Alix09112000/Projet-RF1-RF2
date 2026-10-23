@@ -120,3 +120,20 @@ def test_parametres_de_la_ville(client: TestClient, make_user, versions) -> None
 def test_parametres_reserves(client: TestClient, drcom) -> None:
     response = client.put("/api/parameters", json={"legal_entity": "GVA CIV", "city": "Abidjan"})
     assert response.status_code == 403
+
+
+def test_mix_hors_de_0_a_100_refuse(client: TestClient, db: Session, drcom) -> None:
+    refused = save(client, [{"row": 29, "slot": 6, "value": 1.4}])
+    assert refused.status_code == 422
+    assert "entre 0 % et 100 %" in str(refused.json())
+    assert "140 %" in str(refused.json())
+    negative = save(client, [{"row": 31, "slot": 6, "value": -0.1}])
+    assert negative.status_code == 422
+    # Rien n'est enregistré quand une cellule est refusée.
+    assert client.get("/api/inputs/RF2/B2C1").json()["lines"][3]["values"][6] is None
+    assert db.scalar(select(func.count()).select_from(AssumptionChange)) == 0
+
+
+def test_mix_aux_bornes_accepte(client: TestClient, drcom) -> None:
+    assert save(client, [{"row": 29, "slot": 6, "value": 1.0},
+                         {"row": 31, "slot": 6, "value": 0.0}]).status_code == 200
