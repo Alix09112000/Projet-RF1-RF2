@@ -35,9 +35,7 @@ def upgrade() -> None:
         sa.Column("errors", sa.JSON(), nullable=False),
         sa.Column("warnings", sa.JSON(), nullable=False),
         sa.Column("records", sa.JSON(), nullable=True),
-        sa.Column(
-            "warnings_confirmed", sa.Boolean(), nullable=False, server_default=sa.false()
-        ),
+        sa.Column("warnings_confirmed", sa.Boolean(), nullable=False, server_default=sa.false()),
     )
     op.create_index("ix_import_batches_kind_status", "import_batches", ["kind", "status"])
 
@@ -50,9 +48,7 @@ def upgrade() -> None:
         sa.Column("metric", sa.String(64), nullable=False),
         sa.Column("seniority", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("value", sa.Float(), nullable=False),
-        sa.Column(
-            "batch_id", sa.Integer(), sa.ForeignKey("import_batches.id"), nullable=False
-        ),
+        sa.Column("batch_id", sa.Integer(), sa.ForeignKey("import_batches.id"), nullable=False),
         sa.UniqueConstraint(
             "source", "city_code", "month", "metric", "seniority", name="uq_actual_value"
         ),

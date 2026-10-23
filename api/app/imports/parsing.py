@@ -37,12 +37,33 @@ Row = list[Any]
 Previous = Mapping[str, Mapping[date, float]]
 
 MONTH_NAMES = [
-    "janvier", "février", "mars", "avril", "mai", "juin",
-    "juillet", "août", "septembre", "octobre", "novembre", "décembre",
+    "janvier",
+    "février",
+    "mars",
+    "avril",
+    "mai",
+    "juin",
+    "juillet",
+    "août",
+    "septembre",
+    "octobre",
+    "novembre",
+    "décembre",
 ]
 _MONTH_PREFIXES = [
-    ("janv", 1), ("jan", 1), ("fev", 2), ("mar", 3), ("avr", 4), ("mai", 5),
-    ("juin", 6), ("juil", 7), ("aou", 8), ("sep", 9), ("oct", 10), ("nov", 11), ("dec", 12),
+    ("janv", 1),
+    ("jan", 1),
+    ("fev", 2),
+    ("mar", 3),
+    ("avr", 4),
+    ("mai", 5),
+    ("juin", 6),
+    ("juil", 7),
+    ("aou", 8),
+    ("sep", 9),
+    ("oct", 10),
+    ("nov", 11),
+    ("dec", 12),
 ]
 _NUMBER = re.compile(r"^-?\d+(?:[.,]\d+)?$")
 
@@ -566,13 +587,15 @@ def parse_echus(
             return result.finish()
         for n, row in enumerate(rows[1:], start=2):
             if not _is_empty_row(row):
-                entries.append((
-                    n,
-                    _cell(row, index["Ville"]),
-                    _cell(row, index["Mois"]),
-                    _cell(row, index["Anciennete_mois"]),
-                    _cell(row, index["Nb_echus"]),
-                ))
+                entries.append(
+                    (
+                        n,
+                        _cell(row, index["Ville"]),
+                        _cell(row, index["Mois"]),
+                        _cell(row, index["Anciennete_mois"]),
+                        _cell(row, index["Nb_echus"]),
+                    )
+                )
     elif columns := _crosstab_months(header):
         needs_year = any(isinstance(m, int) for _, m in columns)
         if needs_year and year is None:

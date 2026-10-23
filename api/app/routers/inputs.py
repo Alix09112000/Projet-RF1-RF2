@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.auth.deps import DB, CurrentUser
 from app.inputs.calc import balance_warnings, balances
 from app.inputs.catalog import MODULES, Module, note
-from app.inputs.timeline import slots
+from app.inputs.timeline import real_months, slots
 from app.models import (
     AssumptionChange,
     AssumptionValue,
@@ -17,6 +17,7 @@ from app.models import (
     User,
     VersionStatus,
 )
+from app.routers.parameters import reference_month
 
 router = APIRouter(prefix="/inputs", tags=["saisie"])
 
@@ -76,13 +77,17 @@ def read_module(version_code: str, module_code: str, user: CurrentUser, db: DB) 
     module = get_module(module_code)
     version = get_version(db, version_code)
     grid = load_grid(db, version.id, module.code)
+    reference = reference_month(db)
+    n_real = real_months(reference)
     return {
+        "reference_month": reference.strftime("%Y-%m"),
+        "real_months": n_real,
         "module": module.code,
         "name": module.name,
         "direction": module.direction,
         "version": version.code,
         "editable": version.status == VersionStatus.draft and can_edit(user, module),
-        "slots": [s.__dict__ for s in slots()],
+        "slots": [s.__dict__ for s in slots(n_real)],
         "lines": [
             {
                 "row": line.row,
@@ -90,15 +95,20 @@ def read_module(version_code: str, module_code: str, user: CurrentUser, db: DB) 
                 "unit": line.unit,
                 "nature": line.nature,
                 "section": line.section,
-                "first_slot": line.first_slot,
+                "first_slot": line.first_slot_for(n_real),
                 "note": note(module.code, line.row),
                 "values": [grid.get(line.row, {}).get(i) for i in range(24)],
             }
             for line in module.lines
         ],
         "balances": [
-            {"row": b.row, "label": b.label, "parts": list(b.parts), "confirmed": b.confirmed,
-             "values": balances(module, grid)[b.row]}
+            {
+                "row": b.row,
+                "label": b.label,
+                "parts": list(b.parts),
+                "confirmed": b.confirmed,
+                "values": balances(module, grid)[b.row],
+            }
             for b in module.balances
         ],
         "warnings": balance_warnings(module, grid),
@@ -118,13 +128,14 @@ def save_module(
             status.HTTP_403_FORBIDDEN, f"Saisie réservée à la direction {module.direction}"
         )
 
+    n_real = real_months(reference_month(db))
     errors = []
     mix_rows = {part for balance in module.balances for part in balance.parts}
     for cell in body.cells:
         line = module.line(cell.row)
         if line is None:
             errors.append(f"Ligne {cell.row} : pas une cellule de saisie de {module.code}.")
-        elif cell.slot < line.first_slot:
+        elif cell.slot < line.first_slot_for(n_real):
             errors.append(
                 f"Ligne {cell.row} ({line.label}) : mois {cell.slot + 1} non saisissable, "
                 f"saisie à partir de la colonne {line.first_column}."
@@ -157,12 +168,30 @@ def save_module(
         elif current is not None and cell.value is not None:
             current.value, current.updated_by_id, current.updated_at = cell.value, user.id, now
         elif cell.value is not None:
-            db.add(AssumptionValue(version_id=version.id, module=module.code, row=cell.row,
-                                   slot=cell.slot, value=cell.value, updated_by_id=user.id,
-                                   updated_at=now))
-        db.add(AssumptionChange(version_id=version.id, module=module.code, row=cell.row,
-                                slot=cell.slot, old_value=old, new_value=cell.value,
-                                comment=body.comment, user_id=user.id, changed_at=now))
+            db.add(
+                AssumptionValue(
+                    version_id=version.id,
+                    module=module.code,
+                    row=cell.row,
+                    slot=cell.slot,
+                    value=cell.value,
+                    updated_by_id=user.id,
+                    updated_at=now,
+                )
+            )
+        db.add(
+            AssumptionChange(
+                version_id=version.id,
+                module=module.code,
+                row=cell.row,
+                slot=cell.slot,
+                old_value=old,
+                new_value=cell.value,
+                comment=body.comment,
+                user_id=user.id,
+                changed_at=now,
+            )
+        )
         changed += 1
     db.commit()
     grid = load_grid(db, version.id, module.code)

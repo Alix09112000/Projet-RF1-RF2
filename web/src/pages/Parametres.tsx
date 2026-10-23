@@ -12,6 +12,7 @@ interface Choice {
 
 interface Parameters {
   values: { legal_entity: string | null; city: string | null }
+  reference_month: string
   labels: Record<string, string>
   choices: Choice[]
 }
@@ -22,18 +23,20 @@ export default function Parametres() {
   const data = useQuery({ queryKey: ['parameters'], queryFn: () => api<Parameters>('/parameters') })
   const [entity, setEntity] = useState('')
   const [city, setCity] = useState('')
+  const [reference, setReference] = useState('')
   const canEdit = me.data?.role === 'controller' || me.data?.role === 'admin'
 
   useEffect(() => {
     if (data.data) {
       setEntity(data.data.values.legal_entity ?? '')
       setCity(data.data.values.city ?? '')
+      setReference(data.data.reference_month)
     }
   }, [data.data])
 
   const save = useMutation({
     mutationFn: () =>
-      api('/parameters', { method: 'PUT', body: JSON.stringify({ legal_entity: entity, city }) }),
+      api('/parameters', { method: 'PUT', body: JSON.stringify({ legal_entity: entity, city, reference_month: reference || null }) }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['parameters'] }),
   })
 
@@ -81,6 +84,14 @@ export default function Parametres() {
                 ))}
               </select>
             </label>
+            <label className="field">
+              <span>Mois en cours (mois de référence)</span>
+              <input type="month" value={reference} disabled={!canEdit} onChange={(e) => setReference(e.target.value)} />
+            </label>
+            <p className="muted">
+              Le mois précédent est le dernier mois réel : en août, janvier à juillet sont réels et tout le reste est
+              prévision. L’exercice commence en janvier.
+            </p>
             {save.isError && <div className="error">{save.error.message}</div>}
             {save.isSuccess && <div className="success">Paramètres enregistrés.</div>}
             {canEdit && (

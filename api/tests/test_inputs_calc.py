@@ -25,10 +25,20 @@ def test_axe_du_temps() -> None:
     s = slots()
     assert len(s) == 24
     assert [x.column for x in (s[0], s[5], s[6], s[11], s[12], s[23])] == [
-        "I", "N", "O", "T", "U", "AF"
+        "I",
+        "N",
+        "O",
+        "T",
+        "U",
+        "AF",
     ]
     assert [period_of(i) for i in (0, 5, 6, 11, 12, 23)] == [
-        "actual", "actual", "rf2", "rf2", "bi", "bi"
+        "actual",
+        "actual",
+        "rf2",
+        "rf2",
+        "bi",
+        "bi",
     ]
     assert slot_of_column("O") == 6 and slot_of_column("AF") == 23
     assert column_letter(32) == "AF"
