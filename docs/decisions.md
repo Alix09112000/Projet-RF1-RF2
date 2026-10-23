@@ -74,7 +74,7 @@ sont celles des fichiers réels (38 colonnes A–AL), reliées par libellé. Le 
 Les sorties du moteur sont des clés textuelles (`gross_adds.PREMIUM`, …), pas des numéros de ligne.
 Les cumuls AI–AL sont recalculés depuis l'historique importé.
 
-## D10 — Réel / prévision selon le mois de référence
+## D17 — Réel / prévision selon le mois de référence
 Le nombre de mois réels n'est plus fixé à 6. Le contrôle de gestion choisit le mois en cours dans
 Paramètres ; le mois précédent est le dernier réel (en août : janvier à juillet réels, le reste
 prévision). L'exercice commence en janvier (colonne I). RF2 = mois restants de l'exercice,
