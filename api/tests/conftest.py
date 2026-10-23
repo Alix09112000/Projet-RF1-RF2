@@ -9,7 +9,7 @@ from sqlalchemy.pool import StaticPool
 from app.auth.security import hash_password
 from app.db import Base, get_db
 from app.main import app
-from app.models import Role, User
+from app.models import CityParameter, Role, User
 
 PASSWORD = "motdepasse-de-test"
 
@@ -21,6 +21,9 @@ def db() -> Iterator[Session]:
     )
     Base.metadata.create_all(engine)
     session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)()
+    # Mois de référence fixe : juillet = janvier à juin réels (6 mois), comme le modèle de départ.
+    session.add(CityParameter(key="reference_month", value="2026-07"))
+    session.commit()
     yield session
     session.close()
     engine.dispose()

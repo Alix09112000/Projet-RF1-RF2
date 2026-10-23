@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -16,9 +16,23 @@ Controller = Annotated[User, Depends(require_roles(Role.controller, Role.admin))
 KEYS = {"legal_entity": "Entité légale (DROPE1 D5)", "city": "Ville (DROPE1 D6)"}
 
 
+REFERENCE_KEY = "reference_month"
+
+
 class ParametersIn(BaseModel):
     legal_entity: str = Field(min_length=1, max_length=120)
     city: str = Field(min_length=1, max_length=120)
+    # Mois en cours de l'exercice (AAAA-MM) : le mois précédent est le dernier mois réel.
+    reference_month: str | None = Field(default=None, pattern=r"^\d{4}-(0[1-9]|1[0-2])$")
+
+
+def reference_month(db: DB) -> date:
+    """Mois de référence choisi par le contrôle de gestion, à défaut le mois en cours."""
+    value = db.scalar(select(CityParameter.value).where(CityParameter.key == REFERENCE_KEY))
+    if value:
+        return date(int(value[:4]), int(value[5:7]), 1)
+    today = date.today()
+    return date(today.year, today.month, 1)
 
 
 def current(db: DB) -> dict[str, str | None]:
@@ -31,6 +45,7 @@ def read_parameters(_: CurrentUser, db: DB) -> dict:
     entries = db.scalars(select(ListEntry).order_by(ListEntry.source_row))
     return {
         "values": current(db),
+        "reference_month": reference_month(db).strftime("%Y-%m"),
         "labels": KEYS,
         "choices": [
             {"entity": e.entity, "country": e.country, "city": e.city, "source_row": e.source_row}
@@ -50,11 +65,14 @@ def save_parameters(body: ParametersIn, user: Controller, db: DB) -> dict:
             "Ce couple entité légale / ville n'existe pas dans la table List",
         )
     now = datetime.now(UTC)
-    for key, value in (("legal_entity", body.legal_entity), ("city", body.city)):
+    pairs = [("legal_entity", body.legal_entity), ("city", body.city)]
+    if body.reference_month:
+        pairs.append((REFERENCE_KEY, body.reference_month))
+    for key, value in pairs:
         param = db.scalar(select(CityParameter).where(CityParameter.key == key))
         if param is None:
             db.add(CityParameter(key=key, value=value, updated_by_id=user.id, updated_at=now))
         else:
             param.value, param.updated_by_id, param.updated_at = value, user.id, now
     db.commit()
-    return {"values": current(db)}
+    return {"values": current(db), "reference_month": reference_month(db).strftime("%Y-%m")}

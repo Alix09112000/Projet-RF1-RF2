@@ -1,17 +1,23 @@
 """Axe du temps du modèle : 24 colonnes mensuelles, indépendantes de l'année (règle 1).
 
 Colonnes Excel I à AF :
-  I–N  : 6 mois réels      → slots 0 à 5
-  O–T  : 6 mois RF2        → slots 6 à 11
+  I–N  : mois réels        → slots 0 à n−1 (6 par défaut)
+  O–T  : mois RF2          → slots n à 11 (le reste de l'exercice)
   U–AF : 12 mois de BI     → slots 12 à 23
+
+Le nombre de mois réels n dépend du mois de référence : le mois précédent est le dernier réel
+(en août : janvier à juillet = 7 mois réels). L'exercice commence en janvier.
 """
 
 from dataclasses import dataclass
+from datetime import date
 
 SLOTS = 24
-ACTUAL = range(0, 6)
-RF2 = range(6, 12)
+DEFAULT_REAL = 6
+ACTUAL = range(0, DEFAULT_REAL)
+RF2 = range(DEFAULT_REAL, 12)
 BI = range(12, 24)
+YEAR = 12
 FIRST_COLUMN = 9  # I
 FCFA_PER_EUR = 655.957
 
@@ -46,24 +52,29 @@ def slot_of_column(letter: str) -> int:
     return slot
 
 
-def period_of(slot: int) -> str:
-    if slot in ACTUAL:
+def real_months(reference: date) -> int:
+    """Nombre de mois réels pour un mois de référence : janvier → mois précédent (0 à 11)."""
+    return reference.month - 1
+
+
+def period_of(slot: int, n_real: int = DEFAULT_REAL) -> str:
+    if slot < n_real:
         return "actual"
-    if slot in RF2:
+    if slot < YEAR:
         return "rf2"
     return "bi"
 
 
-def slots() -> list[Slot]:
+def slots(n_real: int = DEFAULT_REAL) -> list[Slot]:
     out = []
     for i in range(SLOTS):
-        period = period_of(i)
+        period = period_of(i, n_real)
         if period == "actual":
             label = f"Réel M{i + 1}"
         elif period == "rf2":
-            label = f"RF2 M{i - 5}"
+            label = f"RF2 M{i - n_real + 1}"
         else:
-            label = f"BI M{i - 11}"
+            label = f"BI M{i - YEAR + 1}"
         out.append(Slot(i, column_letter(FIRST_COLUMN + i), period, label))
     return out
 

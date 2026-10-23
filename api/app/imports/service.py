@@ -9,9 +9,7 @@ from app.models import ActualValue, ImportBatch, ImportKind
 
 def load_context(db: Session, kind: ImportKind) -> tuple[set[date], dict[str, dict[date, float]]]:
     """Mois déjà importés, et valeurs utiles au contrôle de variation."""
-    months = set(
-        db.scalars(select(ActualValue.month).where(ActualValue.source == kind).distinct())
-    )
+    months = set(db.scalars(select(ActualValue.month).where(ActualValue.source == kind).distinct()))
     previous: dict[str, dict[date, float]] = {}
     if kind == ImportKind.commercial:
         rows = db.execute(

@@ -11,13 +11,13 @@ from tests.fictif_drcom import B2C1_CELLS
 
 @pytest.fixture()
 def versions(db: Session) -> None:
-    db.add_all([
-        ForecastVersion(code="RF1", label="RF1", status=VersionStatus.published),
-        ForecastVersion(code="RF2", label="RF2", status=VersionStatus.draft),
-    ])
     db.add_all(
-        ListEntry(entity=e, country=c, city=v, source_row=r) for r, e, c, v in LIST_ENTRIES
+        [
+            ForecastVersion(code="RF1", label="RF1", status=VersionStatus.published),
+            ForecastVersion(code="RF2", label="RF2", status=VersionStatus.draft),
+        ]
     )
+    db.add_all(ListEntry(entity=e, country=c, city=v, source_row=r) for r, e, c, v in LIST_ENTRIES)
     db.commit()
 
 
@@ -135,5 +135,41 @@ def test_mix_hors_de_0_a_100_refuse(client: TestClient, db: Session, drcom) -> N
 
 
 def test_mix_aux_bornes_accepte(client: TestClient, drcom) -> None:
-    assert save(client, [{"row": 29, "slot": 6, "value": 1.0},
-                         {"row": 31, "slot": 6, "value": 0.0}]).status_code == 200
+    assert (
+        save(
+            client, [{"row": 29, "slot": 6, "value": 1.0}, {"row": 31, "slot": 6, "value": 0.0}]
+        ).status_code
+        == 200
+    )
+
+
+def test_mois_reels_suivent_le_mois_de_reference(client: TestClient, db: Session, drcom) -> None:
+    """En août, janvier à juillet sont réels ; en juillet, janvier à juin."""
+    from app.models import CityParameter
+
+    data = client.get("/api/inputs/RF2/B2C1").json()
+    assert data["real_months"] == 6
+    assert [s["period"] for s in data["slots"]].count("actual") == 6
+
+    db.scalar(select(CityParameter).where(CityParameter.key == "reference_month")).value = "2026-08"
+    db.commit()
+    data = client.get("/api/inputs/RF2/B2C1").json()
+    assert data["real_months"] == 7
+    periods = [s["period"] for s in data["slots"]]
+    assert periods[:7] == ["actual"] * 7 and periods[7] == "rf2" and periods[12] == "bi"
+    assert data["slots"][7]["label"] == "RF2 M1"
+    # Un mois réel (juillet, slot 6) n'est plus saisissable sur une ligne de prévision.
+    forecast_line = next(line for line in data["lines"] if line["first_slot"] == 7)
+    response = save(client, [{"row": forecast_line["row"], "slot": 6, "value": 1}])
+    assert response.status_code == 422
+
+
+def test_parametre_mois_de_reference(client: TestClient, db: Session, make_user, versions) -> None:
+    make_user(Role.controller, email="cg@test.ci")
+    login(client, "cg@test.ci")
+    pair = {"legal_entity": LIST_ENTRIES[0][1], "city": LIST_ENTRIES[0][3]}
+    assert client.get("/api/parameters").json()["reference_month"] == "2026-07"
+    ok = client.put("/api/parameters", json={**pair, "reference_month": "2026-08"})
+    assert ok.status_code == 200 and ok.json()["reference_month"] == "2026-08"
+    bad = client.put("/api/parameters", json={**pair, "reference_month": "2026-13"})
+    assert bad.status_code == 422

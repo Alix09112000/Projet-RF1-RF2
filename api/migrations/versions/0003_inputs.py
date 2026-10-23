@@ -18,8 +18,9 @@ def upgrade() -> None:
     op.create_table(
         "assumption_values",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("version_id", sa.Integer(), sa.ForeignKey("forecast_versions.id"),
-                  nullable=False),
+        sa.Column(
+            "version_id", sa.Integer(), sa.ForeignKey("forecast_versions.id"), nullable=False
+        ),
         sa.Column("module", sa.String(16), nullable=False),
         sa.Column("row", sa.Integer(), nullable=False),
         sa.Column("slot", sa.Integer(), nullable=False),
@@ -31,8 +32,9 @@ def upgrade() -> None:
     op.create_table(
         "assumption_changes",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("version_id", sa.Integer(), sa.ForeignKey("forecast_versions.id"),
-                  nullable=False),
+        sa.Column(
+            "version_id", sa.Integer(), sa.ForeignKey("forecast_versions.id"), nullable=False
+        ),
         sa.Column("module", sa.String(16), nullable=False),
         sa.Column("row", sa.Integer(), nullable=False),
         sa.Column("slot", sa.Integer(), nullable=False),

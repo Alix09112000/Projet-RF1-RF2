@@ -22,9 +22,7 @@ def list_users(_: Admin, db: DB) -> list[User]:
 def create_user(body: UserCreate, _: Admin, db: DB) -> User:
     email = body.email.strip().lower()
     if db.scalar(select(User).where(User.email == email)) is not None:
-        raise HTTPException(
-            status.HTTP_409_CONFLICT, "Un compte existe déjà avec cet identifiant"
-        )
+        raise HTTPException(status.HTTP_409_CONFLICT, "Un compte existe déjà avec cet identifiant")
     user = User(
         email=email,
         full_name=body.full_name.strip(),

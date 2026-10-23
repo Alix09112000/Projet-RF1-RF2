@@ -79,3 +79,22 @@ def test_mix_depasse_100() -> None:
     grid[29][6] = 0.9
     res = run(FIRST, grid, {})
     assert any("dépasse 100 %" in w for w in res.warnings)
+
+
+def test_sept_mois_reels_en_aout() -> None:
+    """Mois de référence août : 7 mois réels lus dans la source, le reste calculé en prévision."""
+    grid = forecast_grid()
+    for slot in (6,):  # juillet n'est plus une prévision
+        for row in list(grid):
+            grid[row].pop(slot, None)
+    res = run(FIRST, grid, actuals(12, start=FIRST), n_real=7)
+    assert res.get("gross_adds.total", 6) == 10.0 + 6 + 20.0 + 5.0  # réel juillet
+    assert res.get("gross_adds.mix.PREMIUM", 6) == pytest.approx(16 / 41)  # mix constaté
+    assert res.get("gross_adds.total", 7) == 100.0  # août = somme des 4 canaux
+    assert checks(res) == []
+
+
+def test_zero_mois_reel_en_janvier() -> None:
+    res = run(FIRST, forecast_grid(), {}, n_real=0)
+    assert checks(res) == []
+    assert not res.warnings or "sans données" not in res.warnings[0]

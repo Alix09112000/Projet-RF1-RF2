@@ -11,9 +11,7 @@ def test_reference_reservee_aux_connectes(client: TestClient) -> None:
 
 def test_reference(client: TestClient, db: Session, make_user) -> None:
     db.add(City(code="ABJ", name="Abidjan", country="Côte d'Ivoire", currency="XOF"))
-    db.add_all(
-        [Segment(code="B2C", name="Particuliers"), Segment(code="SME", name="Entreprises")]
-    )
+    db.add_all([Segment(code="B2C", name="Particuliers"), Segment(code="SME", name="Entreprises")])
     db.commit()
     make_user(Role.viewer)
     login(client, "viewer@test.ci")

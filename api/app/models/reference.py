@@ -42,7 +42,5 @@ class ForecastVersion(Base):
     status: Mapped[VersionStatus] = mapped_column(
         Enum(VersionStatus, native_enum=False, length=20), default=VersionStatus.draft
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
