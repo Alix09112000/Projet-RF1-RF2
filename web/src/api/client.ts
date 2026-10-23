@@ -22,7 +22,11 @@ function errorMessage(body: unknown, fallback: string): string {
     const detail = (body as { detail: unknown }).detail
     if (typeof detail === 'string') return detail
     if (Array.isArray(detail)) {
-      return detail.map((d) => (d as { msg?: string }).msg ?? '').filter(Boolean).join(' · ')
+      // FastAPI renvoie soit des objets { msg } (validation Pydantic), soit nos propres messages en texte.
+      const messages = detail
+        .map((d) => (typeof d === 'string' ? d : ((d as { msg?: string }).msg ?? '')))
+        .filter(Boolean)
+      if (messages.length > 0) return messages.join(' · ')
     }
   }
   return fallback
